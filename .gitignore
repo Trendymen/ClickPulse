@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Xcode / Swift
+build/
+DerivedData/
+.build/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.moved-aside
+Packages/
+.swiftpm/
+
+# 构建产物
+*.app
+*.dmg
+
+# 自签名证书 / 钥匙串导出（不入库）
+*.p12
+*.cer
+*.certSigningRequest
