@@ -45,3 +45,41 @@ extension ClickStore {
         }
     }
 }
+
+extension ClickStore {
+    func sum(since hourTs: Int) throws -> Int {
+        try dbQueue.read { db in
+            try Int.fetchOne(db, sql:
+                "SELECT COALESCE(SUM(count),0) FROM click_hourly WHERE hour_ts >= ?",
+                arguments: [hourTs]) ?? 0
+        }
+    }
+
+    /// 返回 7×24 矩阵：grid[weekday-1][hour] = 累计点击（含所有按键）
+    func heatmap() throws -> [[Int]] {
+        var grid = Array(repeating: Array(repeating: 0, count: 24), count: 7)
+        try dbQueue.read { db in
+            let rows = try Row.fetchAll(db, sql: """
+                SELECT local_weekday AS w, local_hour AS h, SUM(count) AS c
+                FROM click_hourly GROUP BY local_weekday, local_hour
+                """)
+            for row in rows {
+                let w: Int = row["w"], h: Int = row["h"], c: Int = row["c"]
+                if (1...7).contains(w), (0...23).contains(h) { grid[w - 1][h] = c }
+            }
+        }
+        return grid
+    }
+
+    /// 近段每天总点击，返回按 day epoch 升序的 (dayStartTs, count)（趋势近似日界用 86400 取整）
+    func dailyTrend(sinceDayStart: Int) throws -> [(day: Int, count: Int)] {
+        try dbQueue.read { db in
+            let rows = try Row.fetchAll(db, sql: """
+                SELECT (hour_ts - (hour_ts % 86400)) AS day, SUM(count) AS c
+                FROM click_hourly WHERE hour_ts >= ?
+                GROUP BY day ORDER BY day ASC
+                """, arguments: [sinceDayStart])
+            return rows.map { (day: $0["day"], count: $0["c"]) }
+        }
+    }
+}
