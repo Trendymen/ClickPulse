@@ -7,7 +7,6 @@ struct PanelView: View {
     let store: ClickStore
     let permissionGranted: Bool
     var onRequestPermission: () -> Void = {}
-    var launchAtLogin: Binding<Bool>
 
     @State private var tab: PanelTab = .趋势
 
@@ -25,7 +24,7 @@ struct PanelView: View {
                 case .趋势:   TrendView(store: store)
                 case .热力图: HeatmapView(grid: stats.heatmap)
                 case .导出:   ExportView(store: store)
-                case .设置:   SettingsView(launchAtLogin: launchAtLogin)
+                case .设置:   SettingsView()
                 }
             }.frame(height: 220)
         }
@@ -35,10 +34,13 @@ struct PanelView: View {
 }
 
 struct SettingsView: View {
-    @Binding var launchAtLogin: Bool
+    @State private var launchAtLogin = LaunchAgentService.isEnabled
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Toggle("开机自启 + 崩溃自动拉起", isOn: $launchAtLogin)
+            Toggle("开机自启（登录时打开）", isOn: $launchAtLogin)
+                .onChange(of: launchAtLogin) { _, on in
+                    try? LaunchAgentService.setEnabled(on)
+                }
             Text("数据目录：~/Library/Application Support/com.liuzhuo.clickpulse/")
                 .font(.caption).foregroundStyle(.secondary)
             Spacer()

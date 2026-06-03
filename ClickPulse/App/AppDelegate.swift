@@ -9,7 +9,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let eventTap = EventTapController()
     private var stats: StatsProvider!
     private var statusManager: StatusItemManager!
-    private var launchAtLogin = false
     private var eventTapStarted = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -29,16 +28,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         store = try! ClickStore(path: dir.appendingPathComponent("clickpulse.sqlite"))
         stats = StatsProvider(store: store)
         aggregator = Aggregator(counter: counter, store: store)
-        launchAtLogin = LaunchAgentService.isEnabled
 
         // 菜单栏 + 面板
         let panel = PanelView(
             stats: stats, store: store,
             permissionGranted: PermissionManager.isGranted,
-            onRequestPermission: { PermissionManager.request(); PermissionManager.openSettings() },
-            launchAtLogin: Binding(get: { [weak self] in self?.launchAtLogin ?? false },
-                                   set: { [weak self] on in
-                                       try? LaunchAgentService.setEnabled(on); self?.launchAtLogin = on }))
+            onRequestPermission: { PermissionManager.request(); PermissionManager.openSettings() })
         statusManager = StatusItemManager(rootView: panel)
 
         // 监听 → 计数
