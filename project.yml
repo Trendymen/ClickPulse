@@ -13,7 +13,14 @@ targets:
     type: application
     platform: macOS
     sources:
-      - ClickPulse
+      - path: ClickPulse
+        excludes:
+          - "LaunchAgents/**"
+      - path: ClickPulse/LaunchAgents/com.liuzhuo.clickpulse.plist
+        buildPhase:
+          copyFiles:
+            destination: wrapper
+            subpath: Contents/Library/LaunchAgents
     info:
       path: ClickPulse/Info.plist
       properties:
