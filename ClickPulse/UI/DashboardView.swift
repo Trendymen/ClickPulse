@@ -39,7 +39,9 @@ struct DashboardView: View {
 
     private func cell(_ label: String, _ n: Int) -> some View {
         VStack(spacing: 2) {
-            Text("\(n)").font(.title3).monospacedDigit().fontWeight(.semibold)
+            Text(ClickFormat.display(n))
+                .font(.title3).monospacedDigit().fontWeight(.semibold)
+                .lineLimit(1).minimumScaleFactor(0.5)
             Text(label).font(.caption2).foregroundStyle(.secondary)
         }.frame(maxWidth: .infinity)
     }
