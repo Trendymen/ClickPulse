@@ -39,6 +39,11 @@ targets:
     platform: macOS
     sources:
       - ClickPulseTests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
     dependencies:
       - target: ClickPulse
 schemes:
