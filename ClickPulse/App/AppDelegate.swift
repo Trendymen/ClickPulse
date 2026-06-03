@@ -13,6 +13,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var eventTapStarted = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // 测试环境下跳过整套启动逻辑：避免单实例仲裁 / 事件 tap / 真实数据库副作用干扰单元测试
+        if NSClassFromString("XCTestCase") != nil { return }
         NSApp.setActivationPolicy(.accessory)
 
         // 单实例仲裁：已有实例（通常是 launchd 托管的权威实例）则本实例干净退出
@@ -70,9 +72,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    @objc private func willSleep() { aggregator.flush() }
+    @objc private func willSleep() { aggregator?.flush() }
 
-    func applicationWillTerminate(_ notification: Notification) { aggregator.flush() }
+    func applicationWillTerminate(_ notification: Notification) { aggregator?.flush() }
 
     private func updateHealth(_ healthy: Bool) {
         if !healthy {
