@@ -83,3 +83,26 @@ extension ClickStore {
         }
     }
 }
+
+extension ClickStore {
+    /// 每个小时桶一行，按键聚成 HourRow（供导出）
+    func allRows() throws -> [HourRow] {
+        try dbQueue.read { db in
+            let rows = try Row.fetchAll(db, sql: """
+                SELECT hour_ts, local_hour, local_weekday, button, count
+                FROM click_hourly ORDER BY hour_ts ASC
+                """)
+            var byBucket: [Int: (Int, Int, [MouseButton: Int])] = [:]
+            for r in rows {
+                let ts: Int = r["hour_ts"]
+                var entry = byBucket[ts] ?? (r["local_hour"], r["local_weekday"], [:])
+                if let b = MouseButton(rawValue: r["button"]) { entry.2[b] = r["count"] }
+                byBucket[ts] = entry
+            }
+            return byBucket.keys.sorted().map { ts in
+                let e = byBucket[ts]!
+                return HourRow(hourTs: ts, localHour: e.0, localWeekday: e.1, counts: e.2)
+            }
+        }
+    }
+}
