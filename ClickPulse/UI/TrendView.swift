@@ -18,6 +18,7 @@ struct TrendView: View {
             } else {
                 Chart(points) { p in
                     LineMark(x: .value("日期", p.day), y: .value("点击", p.count))
+                    PointMark(x: .value("日期", p.day), y: .value("点击", p.count))
                 }
             }
         }

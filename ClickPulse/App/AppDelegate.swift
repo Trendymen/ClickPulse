@@ -42,7 +42,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusManager = StatusItemManager(rootView: panel)
 
         // 监听 → 计数
-        eventTap.onClick = { [weak self] button in self?.counter.increment(button) }
+        eventTap.onClick = { [weak self] button in
+            self?.counter.increment(button)
+            DispatchQueue.main.async { self?.stats.bump(button) }   // 乐观更新：点击即跳
+        }
         eventTap.onHealthChange = { [weak self] healthy in
             DispatchQueue.main.async { self?.updateHealth(healthy) }
         }
