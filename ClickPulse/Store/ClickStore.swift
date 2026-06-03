@@ -44,6 +44,17 @@ extension ClickStore {
             return result
         }
     }
+
+    /// 每个小时桶的总点击（所有按键合计），按 hour_ts 升序。供趋势图在 Swift 端按「本地日」聚合，
+    /// 避免 dailyTrend 用 86400 取整造成的 UTC 日界偏移（东八区会落在本地 08:00）。
+    func hourlyTotals(since hourTs: Int) throws -> [(hour: Int, count: Int)] {
+        try dbQueue.read { db in
+            let rows = try Row.fetchAll(db, sql:
+                "SELECT hour_ts, SUM(count) AS c FROM click_hourly WHERE hour_ts >= ? GROUP BY hour_ts ORDER BY hour_ts ASC",
+                arguments: [hourTs])
+            return rows.map { (hour: $0["hour_ts"], count: $0["c"]) }
+        }
+    }
 }
 
 extension ClickStore {
