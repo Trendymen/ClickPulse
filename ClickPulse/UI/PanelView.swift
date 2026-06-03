@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 enum PanelTab: String, CaseIterable { case 趋势, 热力图, 导出, 设置 }
 
@@ -43,6 +44,12 @@ struct SettingsView: View {
                 }
             Text("数据目录：~/Library/Application Support/com.liuzhuo.clickpulse/")
                 .font(.caption).foregroundStyle(.secondary)
+            Divider()
+            Button("退出 ClickPulse") {
+                NSApplication.shared.terminate(nil)
+            }
+            Text("（也可右键菜单栏图标退出）")
+                .font(.caption2).foregroundStyle(.secondary)
             Spacer()
         }.frame(maxWidth: .infinity, alignment: .leading)
     }
