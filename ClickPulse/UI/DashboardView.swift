@@ -41,7 +41,7 @@ struct DashboardView: View {
         VStack(spacing: 2) {
             Text(ClickFormat.display(n))
                 .font(.title3).monospacedDigit().fontWeight(.semibold)
-                .lineLimit(1).minimumScaleFactor(0.5)
+                .lineLimit(1)
             Text(label).font(.caption2).foregroundStyle(.secondary)
         }.frame(maxWidth: .infinity)
     }
