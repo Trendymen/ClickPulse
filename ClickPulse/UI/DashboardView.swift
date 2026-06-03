@@ -6,19 +6,14 @@ struct DashboardView: View {
     @Bindable var stats: StatsProvider
     @State private var filter: ButtonFilter = .合计
 
-    private func value(_ total: Int) -> Int {
+    private func value(_ total: Int, _ by: [MouseButton: Int]) -> Int {
         switch filter {
         case .合计: return total
-        case .左键: return scaled(total, .left)
-        case .右键: return scaled(total, .right)
-        case .中键: return scaled(total, .middle)
-        case .其它: return scaled(total, .other)
+        case .左键: return by[.left] ?? 0
+        case .右键: return by[.right] ?? 0
+        case .中键: return by[.middle] ?? 0
+        case .其它: return by[.other] ?? 0
         }
-    }
-    private func scaled(_ total: Int, _ b: MouseButton) -> Int {
-        let all = stats.snapshot.byButton.values.reduce(0, +)
-        guard all > 0 else { return 0 }
-        return Int((Double(total) * Double(stats.snapshot.byButton[b] ?? 0) / Double(all)).rounded())
     }
 
     private var filters: [ButtonFilter] {
@@ -33,11 +28,11 @@ struct DashboardView: View {
                 ForEach(filters, id: \.self) { Text($0.rawValue).tag($0) }
             }.pickerStyle(.segmented)
             HStack(spacing: 0) {
-                cell("时", value(stats.snapshot.hour))
-                cell("日", value(stats.snapshot.day))
-                cell("周", value(stats.snapshot.week))
-                cell("月", value(stats.snapshot.month))
-                cell("总", value(stats.snapshot.total))
+                cell("时", value(stats.snapshot.hour,  stats.snapshot.hourBy))
+                cell("日", value(stats.snapshot.day,   stats.snapshot.dayBy))
+                cell("周", value(stats.snapshot.week,  stats.snapshot.weekBy))
+                cell("月", value(stats.snapshot.month, stats.snapshot.monthBy))
+                cell("总", value(stats.snapshot.total, stats.snapshot.byButton))
             }
         }
     }
